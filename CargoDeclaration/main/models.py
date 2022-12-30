@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 
 
 class AdvUser(AbstractUser):
+    """Класс - модель пользователя User с дополнительными данными о пользователе"""
     is_activated = models.BooleanField(default=True, db_index=True,
                                        verbose_name='Активация пройдена?')
     send_messages = models.BooleanField(default=True, verbose_name='Высылать оповещения?')
@@ -29,28 +30,29 @@ class Cargo(models.Model):
         verbose_name = 'Тип груза'
 
 
+class Status(models.Model):
+    status = models.CharField(max_length=45, verbose_name='Статус декларации')
+
+    class Meta:
+        verbose_name_plural = 'Статусы декларации'
+        verbose_name = 'Статус декларации'
+
+
 class DeclarationLog(models.Model):
     formation_date = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания декларации')
     responsible = models.CharField(max_length=150, verbose_name='Представитель')
     address_responsible = models.TextField(verbose_name='Адрес представителя')
-    customs_value = models.DecimalField(max_digits=100, decimal_places=2, verbose_name='Таможенная стоимость')
+    customs_value = models.DecimalField(max_digits=50, decimal_places=2, verbose_name='Таможенная стоимость')
     cargo_amount = models.IntegerField(verbose_name='Количество груза')
-    net_weight = models.DecimalField(max_digits=100, decimal_places=2, verbose_name='Вес нетто')
-    gross_weight = models.DecimalField(max_digits=100, decimal_places=2, verbose_name='Вес брутто')
+    net_weight = models.DecimalField(max_digits=50, decimal_places=2, verbose_name='Вес нетто')
+    gross_weight = models.DecimalField(max_digits=50, decimal_places=2, verbose_name='Вес брутто')
+    status = models.ForeignKey(Status, null=True, on_delete=models.SET_NULL, default=1, verbose_name='Статус')
     user_id = models.ForeignKey(AdvUser, on_delete=models.CASCADE, verbose_name='Пользователь')
-    cargo_id = models.ForeignKey(Cargo, null=True, on_delete=models.SET_NULL)
+    cargo_id = models.ForeignKey(Cargo, null=True, on_delete=models.SET_NULL, verbose_name='Вид груза')
 
     class Meta:
         verbose_name_plural = 'Декларации'
         verbose_name = 'Декларация'
-
-
-class Status(models.Model):
-    status = models.CharField(max_length=45, verbose_name='Статус деклараци')
-
-    class Meta:
-        verbose_name_plural = 'Статусы деклараци'
-        verbose_name = 'Статус деклараци'
 
 
 class CargoReceiver(models.Model):
@@ -58,8 +60,8 @@ class CargoReceiver(models.Model):
     receiver_country = models.CharField(max_length=60, verbose_name='Страна получателя')
     receiver_locality = models.CharField(max_length=70, verbose_name='Населенный пункт получателя')
     receiver_postal_code = models.CharField(max_length=45, verbose_name='Почтовый индекс получателя')
-    receiver_PSRN = models.IntegerField(verbose_name='ОГРН')
-    id = models.OneToOneField(DeclarationLog, on_delete=models.CASCADE, primary_key=True)
+    receiver_PSRN = models.IntegerField(verbose_name='ОГРН получателя')
+    id = models.OneToOneField(DeclarationLog, on_delete=models.CASCADE, primary_key=True, auto_created=True, default=1)
 
     class Meta:
         verbose_name_plural = 'Получатели груза'
@@ -71,8 +73,8 @@ class Consignor(models.Model):
     sending_country = models.CharField(max_length=60, verbose_name='Страна отправителя')
     sender_locality = models.CharField(max_length=70, verbose_name='Населенный пункт отправителя')
     sender_postal_code = models.CharField(max_length=45, verbose_name='Почтовый индекс отправителя')
-    sender_PSRN = models.IntegerField(verbose_name='ОГРН')
-    id = models.OneToOneField(DeclarationLog, on_delete=models.CASCADE, primary_key=True)
+    sender_PSRN = models.IntegerField(verbose_name='ОГРН отправителя')
+    id = models.OneToOneField(DeclarationLog, on_delete=models.CASCADE, primary_key=True, auto_created=True, default=1)
 
     class Meta:
         verbose_name_plural = 'Отправители груза'
@@ -101,3 +103,12 @@ class Summary(models.Model):
     orientation_id = models.ForeignKey(Orientation, null=True, on_delete=models.SET_NULL)
 
     status_id = models.ForeignKey(Status, null=True, on_delete=models.SET_NULL)
+
+
+class DeclarationLogArchive(models.Model):
+    archive_date = models.DateTimeField(verbose_name='Дата ухода в архив')
+    id = models.OneToOneField(Summary, on_delete=models.CASCADE, primary_key=True)
+
+    class Meta:
+        verbose_name_plural = 'Даты ухода в архив'
+        verbose_name = 'Дата ухода в архив'
