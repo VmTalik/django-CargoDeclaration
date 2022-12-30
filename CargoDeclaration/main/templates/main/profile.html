@@ -1,0 +1,9 @@
+{% extends "layout/basic.html" %}
+{% block title %}Регистрация декларации{% endblock %}
+{% load thumbnail %}
+{% load static %}
+{% load bootstrap4 %}
+{% block content %}
+<h2>Профиль пользователя {{user.username}}</h2>
+<p><a href="{% url 'main:profile_bb_add' %}">Перейти к форме заполнения декларации</a></p>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "layout/basic.html" %}
+{% load bootstrap4 %}
+{% block title %}Редактирование декларации - Профиль пользователя{% endblock %}
+{% block content %}
+<h2>Редактирование декларации</h2>
+<h4>Основные сведения</h4>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% bootstrap_form form1 layout='horizontal' %}
+<h4>Получатель</h4>
+    {% bootstrap_form form2 layout='horizontal' %}
+<h4>Отправитель</h4>
+    {% bootstrap_form form3 layout='horizontal' %}
+    {% buttons submit='Добавить' %}{% endbuttons %}
+</form>
+{% endblock %}
