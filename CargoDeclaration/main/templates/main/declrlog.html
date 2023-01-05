@@ -1,0 +1,26 @@
+{% extends "layout/basic.html" %}
+{% load thumbnail %}
+{% load static %}
+{% load bootstrap4 %}
+{% block content %}
+<h2>Журнал деклараций</h2>
+<p>Здравствуйте! Здесь показаны все Ваши декларации, которые пока находятся на проверке у инспектора.
+    Вы можете их отредактировать </p>
+{% if declrs %}
+<ul class="list-unstyled">
+    {% for declr in declrs %}
+    <li class="media my-5 p-3 border">
+
+        <div class="media-body">
+            <h3><a class="nav-link" href="#">
+                {{ declr.title }}</a></h3>
+            <div>{{ declr.responsible }}</div>
+            <p class="text-right font-italic">{{ declr.formation_date }}</p>
+            <p><a href="{% url 'main:profile_declr_change' pk=declr.pk %}">Редактировать</a>
+            <p><a href="{% url 'main:profile_declr_delete' pk=declr.pk %}">Удалить</a>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}
